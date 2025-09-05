@@ -1,8 +1,16 @@
-# test
->>>>>>> 6eff3e320eb9a623ac3081f83ad6576dc10ef955
 # Marketing Test Project
 
+[![Deploy to GitHub Pages](https://github.com/synthosaicreativestudio-maker/test/actions/workflows/deploy.yml/badge.svg)](https://github.com/synthosaicreativestudio-maker/test/actions/workflows/deploy.yml)
+[![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-Live-brightgreen?logo=github)](https://synthosaicreativestudio-maker.github.io/test/)
+[![Website Status](https://img.shields.io/website?url=https%3A%2F%2Fsynthosaicreativestudio-maker.github.io%2Ftest%2F)](https://synthosaicreativestudio-maker.github.io/test/)
+
 Проект для автоматизации маркетинга с интеграцией Telegram бота, Context7 MCP, Google Sheets и веб-интерфейсом.
+
+## 🌐 Live Demo
+
+- **🚀 Веб-интерфейс**: [https://synthosaicreativestudio-maker.github.io/test/](https://synthosaicreativestudio-maker.github.io/test/)
+- **📱 Telegram Mini App**: Авторизация через веб-интерфейс
+- **🔄 Автодеплой**: При каждом push в `main`
 
 ## 🚀 Быстрый старт и деплой
 
@@ -76,18 +84,18 @@ print(get_context_summary(tid))
 - **Валидация в реальном времени** кода сотрудника и телефона
 - **Интеграция с MainButton** Telegram для улучшенного UX
 
-По умолчанию используется: `https://synthosaicreativestudio-maker.github.io/marketing/auth_universal.html`
+По умолчанию используется: `https://synthosaicreativestudio-maker.github.io/test/`
 
 ### Web UI
 
-Добавлена папка `web_ui` с готовыми стилями `styles.css` и примером страницы авторизации `auth.html`.
+Добавлена папка `web_ui` с готовыми стилями `styles.css` и примером страницы авторизации `index.html`.
 Это можно использовать как миниапп-страницу Telegram Web App или как отдельную страницу авторизации.
 
 Чтобы запустить локально:
 
 ```bash
 python3 scripts/serve_web.py --port 8000
-# затем открыть http://localhost:8000/auth.html
+# затем открыть http://localhost:8000/
 ```
 
 ## Примеры использования
@@ -98,9 +106,22 @@ python3 scripts/add_log.py --log logs/project_log.md --author "Иван" --type 
 
 ## Рекомендации
 
+# test
+>>>>>>> 6eff3e320eb9a623ac3081f83ad6576dc10ef955
+# Test auto deploy
 - Используйте читаемые и структурированные записи.
 - Не храните секреты в журналах в репозитории.
 - Версионируйте изменения через Git.
+
+## 🚀 Автоматический деплой
+
+Проект настроен на автоматический деплой:
+
+- **✅ Тесты**: Автоматически запускаются при каждом push
+- **🌐 GitHub Pages**: Веб-интерфейс автоматически деплоится
+- **🔄 CI/CD**: GitHub Actions workflow для непрерывной интеграции
+
+Подробнее в **[📋 DEPLOYMENT.md](DEPLOYMENT.md)**
 =======
 # test
 >>>>>>> 6eff3e320eb9a623ac3081f83ad6576dc10ef955

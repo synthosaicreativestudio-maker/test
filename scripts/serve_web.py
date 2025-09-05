@@ -25,7 +25,7 @@ def main():
     os.chdir(webdir)
     handler = http.server.SimpleHTTPRequestHandler
     with socketserver.TCPServer(('', args.port), handler) as httpd:
-        print(f'Сервер запущен: http://localhost:{args.port}/auth.html')
+        print(f'Сервер запущен: http://localhost:{args.port}/index.html')
         try:
             httpd.serve_forever()
         except KeyboardInterrupt:

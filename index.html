@@ -218,6 +218,7 @@
                     name="phoneNumber" 
                     class="form-input" 
                     placeholder="89991234567" 
+                    value="8"
                     required
                     inputmode="tel"
                     pattern="[0-9]{11}"
@@ -282,12 +283,12 @@
             return { valid: true, message: '' };
         }
 
-        // Валидация номера телефона
+        // Валидация номера телефона (принимает чистые цифры)
         function validatePhoneNumber(phone) {
             if (!phone) return { valid: false, message: 'Номер телефона обязателен' };
             
-            // Удаляем все нецифровые символы
-            const cleanPhone = phone.replace(/\D/g, '');
+            // phone уже должен быть очищен от нецифровых символов
+            const cleanPhone = typeof phone === 'string' ? phone.replace(/\D/g, '') : phone;
             
             // Проверяем длину
             if (cleanPhone.length === 10) {
@@ -300,6 +301,10 @@
             
             if (cleanPhone.length === 11 && cleanPhone.startsWith('7')) {
                 return { valid: true, message: 'Номер будет изменен на 8' + cleanPhone.substring(1), corrected: '8' + cleanPhone.substring(1) };
+            }
+            
+            if (cleanPhone.length < 11) {
+                return { valid: false, message: `Введите ещё ${11 - cleanPhone.length} цифр` };
             }
             
             return { valid: false, message: 'Некорректный номер. Ожидается 11 цифр, начинающихся с 8' };
@@ -326,24 +331,87 @@
             }
         });
 
-        // Обработка ввода номера телефона
+
+
+        // Обработка фокуса на поле телефона - курсор в конец
+        phoneNumberInput.addEventListener('focus', function(e) {
+            if (!e.target.value || e.target.value === '8') {
+                e.target.value = '8';
+            }
+            // Устанавливаем курсор в конец
+            setTimeout(() => {
+                e.target.setSelectionRange(e.target.value.length, e.target.value.length);
+            }, 0);
+        });
+
+        // Запрещаем удаление первой цифры "8"
+        phoneNumberInput.addEventListener('keydown', function(e) {
+            const cursorPosition = e.target.selectionStart;
+            const value = e.target.value;
+            
+            // Запрещаем Backspace и Delete на первой позиции (цифра 8)
+            if ((e.key === 'Backspace' || e.key === 'Delete') && 
+                cursorPosition === 1 && value.startsWith('8')) {
+                e.preventDefault();
+            }
+            
+            // Запрещаем изменение первого символа
+            if (cursorPosition === 0 && e.key !== 'Tab' && e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') {
+                e.preventDefault();
+            }
+        });
+
+        // Автоформатирование номера телефона при вводе
         phoneNumberInput.addEventListener('input', function(e) {
-            const phone = e.target.value;
-            const validation = validatePhoneNumber(phone);
+            let value = e.target.value.replace(/\D/g, ''); // Убираем все кроме цифр
+            
+            // Если пользователь удалил 8, возвращаем её
+            if (!value.startsWith('8')) {
+                value = '8' + value;
+            }
+            
+            // Ограничиваем до 11 цифр
+            if (value.length > 11) {
+                value = value.substring(0, 11);
+            }
+            
+            // Форматирование: 8 (999) 123-45-67
+            let formatted = value;
+            if (value.length > 1) {
+                formatted = value.substring(0, 1);
+                if (value.length > 1) {
+                    formatted += ' (' + value.substring(1, 4);
+                }
+                if (value.length > 4) {
+                    formatted += ') ' + value.substring(4, 7);
+                }
+                if (value.length > 7) {
+                    formatted += '-' + value.substring(7, 9);
+                }
+                if (value.length > 9) {
+                    formatted += '-' + value.substring(9, 11);
+                }
+            }
+            
+            e.target.value = formatted;
+            
+            // Запускаем валидацию с чистым номером
+            const cleanPhone = value;
+            const validation = validatePhoneNumber(cleanPhone);
             const errorElement = document.getElementById('phoneError');
             const successElement = document.getElementById('phoneSuccess');
             
-            if (phone && !validation.valid) {
+            if (cleanPhone.length > 1 && !validation.valid) {
                 e.target.classList.add('error');
                 e.target.classList.remove('success');
                 errorElement.textContent = validation.message;
                 errorElement.style.display = 'block';
                 successElement.style.display = 'none';
-            } else if (phone && validation.valid) {
+            } else if (cleanPhone.length > 1 && validation.valid) {
                 e.target.classList.remove('error');
                 e.target.classList.add('success');
                 errorElement.style.display = 'none';
-                if (validation.corrected && validation.corrected !== phone) {
+                if (validation.corrected && validation.corrected !== cleanPhone) {
                     successElement.textContent = validation.message;
                     successElement.style.display = 'block';
                 } else {
@@ -356,19 +424,13 @@
             }
         });
 
-        // Автофокус на первое поле при нажатии на кнопку
-        phoneNumberInput.addEventListener('focus', function(e) {
-            if (!e.target.value) {
-                e.target.value = '8';
-            }
-        });
-
         // Обработка отправки формы
         form.addEventListener('submit', function(e) {
             e.preventDefault();
             
             const employeeCode = employeeCodeInput.value.trim();
-            const phoneNumber = phoneNumberInput.value.trim();
+            // Получаем чистый номер (только цифры) для валидации
+            const phoneNumber = phoneNumberInput.value.replace(/\D/g, '');
             
             // Валидация
             const codeValidation = validateEmployeeCode(employeeCode);
@@ -399,14 +461,14 @@
             
             // Исправляем номер телефона если нужно
             const correctedPhone = phoneValidation.corrected || phoneNumber;
-            if (correctedPhone !== phoneNumber) {
-                phoneNumberInput.value = correctedPhone;
-            }
+            
+            // Для отправки используем чистый номер
+            const finalPhone = correctedPhone;
             
             // Подготовка данных для отправки
             const authData = {
                 employee_code: employeeCode,
-                phone: correctedPhone,
+                phone: finalPhone,
                 user_id: tg.initDataUnsafe?.user?.id || null,
                 username: tg.initDataUnsafe?.user?.username || null,
                 first_name: tg.initDataUnsafe?.user?.first_name || null,

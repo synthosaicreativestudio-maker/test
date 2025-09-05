@@ -21,7 +21,7 @@ if [ ! -f "env" ]; then
 fi
 
 # Проверка токена бота
-if ! grep -q "TELEGRAM_BOT_TOKEN=" env || grep -q "TELEGRAM_BOT_TOKEN=$" env || grep -q "TELEGRAM_BOT_TOKEN=\"\"" env; then
+if ! grep -q "TELEGRAM_BOT_TOKEN=" env || (grep "TELEGRAM_BOT_TOKEN=" env | grep -q "TELEGRAM_BOT_TOKEN=$\|TELEGRAM_BOT_TOKEN=\"\"\|TELEGRAM_BOT_TOKEN=your_bot_token_here"); then
     echo "❌ TELEGRAM_BOT_TOKEN не настроен в файле env"
     echo "🔧 Получите токен у @BotFather и добавьте в файл env:"
     echo "   TELEGRAM_BOT_TOKEN=your_bot_token_here"

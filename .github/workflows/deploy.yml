@@ -77,6 +77,14 @@ jobs:
         heroku_app_name: ${{ secrets.HEROKU_APP_NAME }}
         heroku_email: ${{ secrets.HEROKU_EMAIL }}
     
+    # Опция 4: Деплой веб-интерфейса на GitHub Pages
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./web_ui
+        destination_dir: marketing
+
     # Опция 3: Деплой Docker контейнера
     - name: Build and push Docker image
       if: ${{ secrets.DOCKER_REGISTRY }}

@@ -1,0 +1,25 @@
+name: Restart Bot on Changes
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'src/**'
+      - 'requirements.txt'
+      - 'env'
+
+jobs:
+  restart-bot:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - name: Restart bot via webhook (if configured)
+      if: ${{ secrets.BOT_RESTART_WEBHOOK }}
+      run: |
+        curl -X POST ${{ secrets.BOT_RESTART_WEBHOOK }}
+        
+    - name: Deploy notification
+      run: |
+        echo "Bot restart triggered for commit: ${{ github.sha }}"
+        echo "Changes detected in bot source code"

@@ -4,6 +4,7 @@
 def setup(dp):
     try:
         from aiogram import types
+        from aiogram.filters.command import Command
     except Exception:
         return
 
@@ -16,4 +17,4 @@ def setup(dp):
         text = args or message.text or 'Echo'
         await message.reply(text)
 
-    dp.message.register(echo_cmd, commands=['echo'])
+    dp.message.register(echo_cmd, Command(commands=['echo']))

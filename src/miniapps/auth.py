@@ -143,6 +143,8 @@ def setup(dp):
         from aiogram import types
         from aiogram.fsm.context import FSMContext
         from aiogram.fsm.state import StatesGroup, State
+        from aiogram.filters.command import Command
+        from aiogram.filters.state import StateFilter
     except Exception:
         return
 
@@ -186,7 +188,7 @@ def setup(dp):
         await message.reply(user_msg)
         await state.clear()
 
-    dp.message.register(cmd_start, commands=['start'])
+    dp.message.register(cmd_start, Command(commands=['start']))
     dp.callback_query.register(start_auth_cb, lambda c: c.data == 'auth_start')
-    dp.message.register(handle_code, state=AuthStates.waiting_code)
-    dp.message.register(handle_phone, state=AuthStates.waiting_phone)
+    dp.message.register(handle_code, StateFilter(AuthStates.waiting_code))
+    dp.message.register(handle_phone, StateFilter(AuthStates.waiting_phone))

@@ -11,3 +11,23 @@ __pycache__/
 # Sensitive files
 credentials.json
 logs/
+
+# Docker
+.dockerignore
+docker-compose.override.yml
+
+# Deployment
+*.tar.gz
+backups/
+
+# Virtual environments
+.venv/
+.venv311/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Google credentials
+google-credentials.json
+service-account.json

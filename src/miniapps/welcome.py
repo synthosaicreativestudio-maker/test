@@ -26,6 +26,7 @@ def setup(dp):
     try:
         from aiogram import types
         from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+        from aiogram.filters.command import Command
     except Exception:
         return
 
@@ -36,4 +37,4 @@ def setup(dp):
         kb = InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text='Авторизоваться', callback_data='auth_start')]])
         await message.reply(text, reply_markup=kb)
 
-    dp.message.register(cmd_start, commands=['start'])
+    dp.message.register(cmd_start, Command(commands=['start']))

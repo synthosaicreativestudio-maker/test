@@ -173,7 +173,7 @@
 
         <form id="authForm">
             <div class="form-group">
-                <label for="employeeCode" class="form-label">Код сотрудника</label>
+                <label for="employeeCode" class="form-label">Код партнера</label>
                 <input 
                     type="text" 
                     id="employeeCode" 
@@ -247,9 +247,9 @@
             statusText.textContent = 'Работа вне Telegram';
         }
 
-        // Валидация кода сотрудника
+        // Валидация кода партнера
         function validateEmployeeCode(code) {
-            if (!code) return { valid: false, message: 'Код сотрудника обязателен' };
+            if (!code) return { valid: false, message: 'Код партнера обязателен' };
             if (!/^\d+$/.test(code)) return { valid: false, message: 'Код должен содержать только цифры' };
             if (code.length < 1) return { valid: false, message: 'Код не может быть пустым' };
             return { valid: true, message: '' };

@@ -1,5 +1,20 @@
 # Инструкция по автоматическому деплою проекта
 
+## GitHub Pages (автоматический деплой веб-интерфейса)
+
+### Настройка GitHub Pages
+1. В настройках репозитория: Settings → Pages
+2. Source: "GitHub Actions"
+3. После настройки веб-интерфейс доступен по адресу:
+   - **URL**: https://synthosaicreativestudio-maker.github.io/test/
+   - **Файлы**: автоматически деплоятся из папки `web_ui/`
+
+### Автоматический деплой веб-интерфейса
+При каждом push в `main` ветку:
+1. Запускаются тесты
+2. Веб-интерфейс (index.html, styles.css, app.js) деплоится на GitHub Pages
+3. Telegram Bot получает обновленный URL для Mini App
+
 ## Настройка GitHub Actions для автоматического деплоя
 
 ### 1. Настройка Secrets в GitHub
@@ -123,7 +138,8 @@ docker-compose up -d --build
 ## Доступные сервисы после запуска
 
 - **Telegram Bot** - автоматически подключается к Telegram
-- **Web UI** - http://localhost:8000/auth.html
+- **Web UI (GitHub Pages)** - https://synthosaicreativestudio-maker.github.io/test/ (автоматический деплой)
+- **Web UI (локально)** - http://localhost:8000/ (при запуске через Docker)
 - **Логи** - http://localhost:8080 (если запущен nginx контейнер)
 
 ## Мониторинг и логи

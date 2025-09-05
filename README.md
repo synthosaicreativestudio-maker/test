@@ -172,6 +172,12 @@ python3 scripts/add_log.py --log logs/project_log.md --author "Иван" --type 
 ```
 # 🔐 Telegram Mini App - Авторизация сотрудников
 
+[![Deploy Status](https://github.com/synthosaicreativestudio-maker/test/actions/workflows/deploy.yml/badge.svg)](https://github.com/synthosaicreativestudio-maker/test/actions/workflows/deploy.yml)
+[![Live Demo](https://img.shields.io/badge/demo-live-brightgreen)](https://synthosaicreativestudio-maker.github.io/test/)
+[![Version](https://img.shields.io/badge/version-1.0.0-blue)](./CHANGELOG.md)
+[![Telegram](https://img.shields.io/badge/platform-Telegram-blue)](https://core.telegram.org/bots/webapps)
+[![Mobile Friendly](https://img.shields.io/badge/mobile-friendly-brightgreen)](#)
+
 Современное приложение для авторизации сотрудников через Telegram Mini App с интеграцией в Google Sheets.
 
 ## ✨ Особенности
@@ -190,6 +196,22 @@ python3 scripts/add_log.py --log logs/project_log.md --author "Иван" --type 
 - **Styling**: CSS Custom Properties (для поддержки тем)
 - **Validation**: Real-time форм валидация
 - **Deployment**: GitHub Pages
+
+## 📚 Документация
+
+### 📋 Основные документы
+- **[📋 CHANGELOG.md](./CHANGELOG.md)** - История всех изменений по версиям
+- **[✅ TODO.md](./TODO.md)** - Текущие задачи и планы
+
+### 📁 Проектная документация
+- **[📋 RULES.md](./docs/RULES.md)** - Правила разработки и стандарты
+- **[🗺️ ROADMAP.md](./docs/ROADMAP.md)** - План развития проекта
+- **[🏗️ ARCHITECTURE.md](./docs/ARCHITECTURE.md)** - Архитектура системы
+
+### 📊 Логи проекта
+- **[📋 project.md](./logs/project.md)** - Основной лог всех изменений
+- **[🛠️ development.md](./logs/development.md)** - Технические детали разработки
+- **[🚀 deployment.md](./logs/deployment.md)** - История деплоев и инфраструктуры
 
 ## 🚀 Деплой
 
@@ -234,11 +256,24 @@ php -S localhost:8000
 
 ```
 marketing_test/
-├── index.html          # Главный файл Mini App
-├── .gitignore          # Исключенные файлы
-├── README.md           # Документация
-├── env                 # Переменные окружения (локально)
-└── credentials.json    # Google Sheets credentials (локально)
+├── index.html              # 🚀 Главный файл Mini App
+├── README.md               # 📖 Основная документация
+├── CHANGELOG.md            # 📋 История изменений
+├── TODO.md                 # ✅ Список задач
+├── .gitignore              # 🛡️ Исключенные файлы
+├── env.example             # 📝 Шаблон переменных
+├── docs/                   # 📚 Документация
+│   ├── RULES.md           # 📋 Правила проекта
+│   ├── ROADMAP.md         # 🗺️ План развития
+│   └── ARCHITECTURE.md    # 🏗️ Архитектура
+├── logs/                   # 📊 Логи проекта
+│   ├── project.md         # 📋 Основной лог
+│   ├── development.md     # 🛠️ Лог разработки
+│   └── deployment.md      # 🚀 Лог деплоя
+├── .github/workflows/      # ⚙️ GitHub Actions
+│   └── deploy.yml         # 🚀 Автодеплой
+├── env                     # 🔐 Переменные окружения (локально)
+└── credentials.json        # 🔐 Google Sheets (локально)
 ```
 
 ## 🔧 Настройка

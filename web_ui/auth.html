@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Авторизация сотрудника</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <div class="container" role="main">
+    <h1>Авторизация сотрудника</h1>
+    <div class="subtitle">Введите код сотрудника и номер телефона для авторизации.</div>
+
+    <form id="authForm">
+      <div class="form-row">
+        <label for="code">Код сотрудника</label>
+        <input id="code" name="code" type="text" inputmode="numeric" pattern="\d*" placeholder="Только цифры" required />
+        <div class="hint">Код состоит только из цифр.</div>
+      </div>
+
+      <div class="form-row">
+        <label for="phone">Номер телефона</label>
+        <input id="phone" name="phone" type="tel" inputmode="tel" placeholder="89827701055" required />
+        <div class="hint">Введите номер в формате 8XXXXXXXXXX (11 цифр). Первая цифра по умолчанию 8.</div>
+      </div>
+
+      <div class="form-row">
+        <button class="btn" type="submit">Авторизоваться</button>
+      </div>
+
+      <div id="result" class="footer small"></div>
+    </form>
+  </div>
+
+  <script src="/app.js"></script>
+</body>
+</html>

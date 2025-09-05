@@ -1,10 +1,9 @@
-"""Миниапп: приветствие и простая регистрация.
+"""Миниапп: приветствие и Mini App авторизация.
 
-Обработчик `/start` отправляет пользователю сообщение:
-"Уважаемый <имя>, пройдите простую регистрацию"
-
-Функция `format_name` выделена для тестирования и гарантирует безопасную подстановку имени.
+Обработчик `/start` отправляет пользователю приветствие с кнопкой
+запуска Telegram Mini App для авторизации сотрудников.
 """
+import os
 
 def format_name(first_name: str = None, last_name: str = None, username: str = None) -> str:
     """Вернуть предпочтительное отображаемое имя пользователя."""
@@ -22,10 +21,30 @@ def format_name(first_name: str = None, last_name: str = None, username: str = N
     return 'пользователь'
 
 
+def load_env_var(key: str, default: str = "") -> str:
+    """Загружает переменную из env файла или окружения."""
+    # Сначала пробуем из переменных окружения
+    value = os.environ.get(key)
+    if value:
+        return value
+    
+    # Если нет, читаем из env файла
+    try:
+        with open('env', 'r', encoding='utf-8') as f:
+            for line in f:
+                line = line.strip()
+                if line.startswith(f'{key}='):
+                    return line.split('=', 1)[1].strip('"\'')
+    except FileNotFoundError:
+        pass
+    
+    return default
+
+
 def setup(dp):
     try:
         from aiogram import types
-        from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+        from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, WebAppInfo
         from aiogram.filters.command import Command
     except Exception:
         return
@@ -33,50 +52,57 @@ def setup(dp):
     async def cmd_start(message: types.Message):
         u = message.from_user
         name = format_name(getattr(u, 'first_name', None), getattr(u, 'last_name', None), getattr(u, 'username', None))
-        text = f"Добро пожаловать, {name}! 👋\n\nДля работы с системой необходимо пройти авторизацию сотрудника."
         
-        # Создаем клавиатуру с Mini App кнопкой
-        kb = InlineKeyboardMarkup(inline_keyboard=[
-            [InlineKeyboardButton(
-                text="🔐 Авторизация сотрудника", 
-                web_app=types.WebAppInfo(url="https://synthosaicreativestudio-maker.github.io/marketing/auth.html")
-            )],
-            [InlineKeyboardButton(text="ℹ️ О системе", callback_data="info")],
-            [InlineKeyboardButton(text="📞 Поддержка", callback_data="support")]
-        ])
+        # Получаем URL Mini App из конфигурации
+        miniapp_url = load_env_var('WEB_APP_AUTH_URL', 'https://synthosaicreativestudio-maker.github.io/marketing/auth_universal.html')
         
-        await message.reply(text, reply_markup=kb)
-
-    async def handle_info(callback: types.CallbackQuery):
-        """Обработчик информации о системе."""
-        info_text = (
-            "📋 **О системе**\n\n"
-            "Это система авторизации и управления заявками для сотрудников.\n\n"
-            "**Возможности:**\n"
-            "• 🔐 Безопасная авторизация сотрудников\n"
-            "• 🎫 Создание и отслеживание заявок\n"
-            "• 📊 Просмотр статистики\n"
-            "• 📱 Удобный интерфейс Mini App\n\n"
-            "Для начала работы пройдите авторизацию сотрудника."
+        text = f"Добро пожаловать, {name}! 👋\n\n"
+        text += "🔐 Для работы с системой необходимо пройти авторизацию сотрудника.\n\n"
+        text += "Нажмите кнопку ниже для открытия формы авторизации."
+        
+        # Создаем reply клавиатуру с Mini App кнопкой
+        keyboard = ReplyKeyboardMarkup(
+            keyboard=[
+                [KeyboardButton(
+                    text="🔐 Авторизация сотрудника",
+                    web_app=WebAppInfo(url=miniapp_url)
+                )],
+                [KeyboardButton(text="ℹ️ О системе")],
+                [KeyboardButton(text="📞 Поддержка")]
+            ],
+            resize_keyboard=True,
+            one_time_keyboard=False
         )
         
-        await callback.message.edit_text(info_text, parse_mode="Markdown")
-        await callback.answer()
+        await message.reply(text, reply_markup=keyboard)
 
-    async def handle_support(callback: types.CallbackQuery):
-        """Обработчик поддержки."""
-        support_text = (
-            "📞 **Служба поддержки**\n\n"
-            "Если у вас возникли проблемы с авторизацией или работой системы, "
-            "обратитесь к администратору:\n\n"
-            "📧 Email: support@company.com\n"
-            "📱 Телефон: +7 (XXX) XXX-XX-XX\n\n"
-            "Мы поможем решить любые вопросы! 🤝"
-        )
+    async def handle_text_messages(message: types.Message):
+        """Обработчик текстовых сообщений для reply кнопок."""
+        text = message.text
         
-        await callback.message.edit_text(support_text, parse_mode="Markdown")
-        await callback.answer()
+        if text == "ℹ️ О системе":
+            info_text = (
+                "📋 **О системе**\n\n"
+                "Это система авторизации и управления заявками для сотрудников.\n\n"
+                "**Возможности:**\n"
+                "• 🔐 Безопасная авторизация сотрудников\n"
+                "• 🎫 Создание и отслеживание заявок\n"
+                "• 📊 Просмотр статистики\n"
+                "• 📱 Удобный интерфейс Mini App\n\n"
+                "Для начала работы пройдите авторизацию сотрудника."
+            )
+            await message.reply(info_text, parse_mode="Markdown")
+            
+        elif text == "📞 Поддержка":
+            support_text = (
+                "📞 **Служба поддержки**\n\n"
+                "Если у вас возникли проблемы с авторизацией или работой системы, "
+                "обратитесь к администратору:\n\n"
+                "📧 Email: support@company.com\n"
+                "📱 Телефон: +7 (XXX) XXX-XX-XX\n\n"
+                "Мы поможем решить любые вопросы! 🤝"
+            )
+            await message.reply(support_text, parse_mode="Markdown")
 
     dp.message.register(cmd_start, Command(commands=['start']))
-    dp.callback_query.register(handle_info, lambda c: c.data == "info")
-    dp.callback_query.register(handle_support, lambda c: c.data == "support")
+    dp.message.register(handle_text_messages, lambda message: message.text in ["ℹ️ О системе", "📞 Поддержка"])

@@ -8,7 +8,7 @@ def register_all(dp):
     """
     # Импортировать и вызывать setup каждого миниаппа
     # Регистрируем миниаппы по очереди. Каждый миниапп аккуратно обрабатывает отсутствие aiogram.
-    for module in ('echo', 'welcome', 'auth', 'webapp'):
+    for module in ('echo', 'welcome', 'webapp'):
         try:
             mod = __import__(f'src.miniapps.{module}', fromlist=['*'])
             if hasattr(mod, 'setup'):

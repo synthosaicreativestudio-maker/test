@@ -213,6 +213,34 @@ python3 scripts/add_log.py --log logs/project_log.md --author "Иван" --type 
 - **[🛠️ development.md](./logs/development.md)** - Технические детали разработки
 - **[🚀 deployment.md](./logs/deployment.md)** - История деплоев и инфраструктуры
 
+## 🤖 Telegram Bot
+
+### Быстрый запуск
+```bash
+# 1. Убедитесь что TELEGRAM_BOT_TOKEN настроен в файле env
+# 2. Запустите скрипт
+./run_bot.sh
+```
+
+### Ручной запуск
+```bash
+# Создание виртуального окружения
+python3 -m venv .venv
+source .venv/bin/activate
+
+# Установка зависимостей
+pip install -r requirements.txt
+
+# Запуск бота
+python3 src/bot.py
+```
+
+### Функции бота
+- 🔐 **Приветственное сообщение** с кнопкой авторизации
+- 📱 **Reply клавиатура** с Mini App кнопкой 
+- ℹ️ **Информация о системе** и поддержка
+- 📊 **Обработка данных** от Mini App (в разработке)
+
 ## 🚀 Деплой
 
 Приложение автоматически деплоится на GitHub Pages:
@@ -253,6 +281,32 @@ php -S localhost:8000
 ```
 
 ## 📁 Структура проекта
+
+```
+marketing_test/
+├── index.html              # 🚀 Главный файл Mini App
+├── README.md               # 📖 Основная документация
+├── CHANGELOG.md            # 📋 История изменений
+├── TODO.md                 # ☑️ Список задач
+├── .gitignore              # 🛡️ Исключенные файлы
+├── env.example             # 📝 Шаблон переменных
+├── requirements.txt        # 📦 Python зависимости
+├── run_bot.sh              # 🚀 Скрипт запуска бота
+├── src/                    # 🤖 Исходный код бота
+│   └── bot.py              # 📱 Telegram Bot (aiogram v3)
+├── docs/                   # 📚 Документация
+│   ├── RULES.md           # 📋 Правила проекта
+│   ├── ROADMAP.md         # 🗺️ План развития
+│   └── ARCHITECTURE.md    # 🏗️ Архитектура
+├── logs/                   # 📊 Логи проекта
+│   ├── project.md         # 📋 Основной лог
+│   ├── development.md     # 🛠️ Лог разработки
+│   └── deployment.md      # 🚀 Лог деплоя
+├── .github/workflows/      # ⚙️ GitHub Actions
+│   └── deploy.yml         # 🚀 Автодеплой
+├── env                     # 🔐 Переменные окружения (локально)
+└── credentials.json        # 🔐 Google Sheets (локально)
+```
 
 ```
 marketing_test/

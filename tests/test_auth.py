@@ -1,4 +1,4 @@
-from src.miniapps.auth import validate_employee_code, validate_phone
+from src.miniapps.webapp import validate_employee_code, validate_phone
 
 
 def test_validate_employee_code():

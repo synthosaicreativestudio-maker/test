@@ -104,3 +104,4 @@ python3 scripts/add_log.py --log logs/project_log.md --author "Иван" --type 
 =======
 # test
 >>>>>>> 6eff3e320eb9a623ac3081f83ad6576dc10ef955
+# Test auto deploy

@@ -1,33 +1,52 @@
-# Ignore environment files and common secrets
+# Секретные файлы
 env
-.env
-env.local
-*.env
-
-# Ignore Python cache
-__pycache__/
-*.pyc
-
-# Sensitive files
 credentials.json
+
+# Логи
+*.log
 logs/
 
-# Docker
-.dockerignore
-docker-compose.override.yml
+# Временные файлы
+*.tmp
+*.temp
 
-# Deployment
-*.tar.gz
-backups/
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
 
-# Virtual environments
+# OS
+.DS_Store
+Thumbs.db
+
+# Node modules (если будут)
+node_modules/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+pip-log.txt
+pip-delete-this-directory.txt
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.log
+.git
+.mypy_cache
+.pytest_cache
+.hypothesis
+
+# Виртуальные окружения
 .venv/
-.venv311/
 venv/
 ENV/
-env.bak/
-venv.bak/
-
-# Google credentials
-google-credentials.json
-service-account.json
+env/

@@ -1,43 +1,41 @@
-name: Deploy to GitHub Pages
+name: Deploy Telegram Mini App to GitHub Pages
 
 on:
   push:
     branches: [ main ]
+  workflow_dispatch:
+
+# Права для деплоя на GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Позволяет только один одновременный деплой
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
 
 jobs:
-  test:
-    runs-on: ubuntu-latest
-    
-    steps:
-    - uses: actions/checkout@v4
-    
-    - name: Set up Python 3.9
-      uses: actions/setup-python@v3
-      with:
-        python-version: 3.9
-    
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
-    
-    - name: Run tests
-      run: |
-        python -m pytest tests/ -v || echo "Tests completed"
-
   deploy:
-    needs: test
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
     
     steps:
-    - uses: actions/checkout@v4
-    
-    - name: Deploy to GitHub Pages
-      uses: peaceiris/actions-gh-pages@v3
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Setup Pages
+      uses: actions/configure-pages@v4
+
+    - name: Upload artifact
+      uses: actions/upload-pages-artifact@v3
       with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./
-        keep_files: false
-        include_assets: 'index.html,app.js,styles.css,.nojekyll'
-        exclude_assets: '.github,.git,src,tests,logs,scripts,requirements.txt,env,env.example,Dockerfile,docker-compose.yml,deploy.sh,nginx.conf,mcp_context_v7.py,README.md,DEPLOYMENT.md,.gitignore,.python-version,credentials.json,web_ui'
+        # Загружаем весь репозиторий (index.html в корне)
+        path: '.'
+
+    - name: Deploy to GitHub Pages
+      id: deployment
+      uses: actions/deploy-pages@v4

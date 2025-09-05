@@ -99,30 +99,7 @@
             display: none;
         }
 
-        .submit-btn {
-            width: 100%;
-            padding: 14px;
-            background: var(--tg-theme-button-color, #0088cc);
-            color: var(--tg-theme-button-text-color, #ffffff);
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin-top: 10px;
-        }
-
-        .submit-btn:hover {
-            background: var(--tg-theme-button-color, #0077b3);
-            transform: translateY(-1px);
-        }
-
-        .submit-btn:disabled {
-            background: var(--tg-theme-hint-color, #707579);
-            cursor: not-allowed;
-            transform: none;
-        }
+        /* Убираем стили для submit-btn, так как используем только MainButton */
 
         .loading {
             display: none;
@@ -226,10 +203,6 @@
                 <div class="error-message" id="phoneError"></div>
                 <div class="success-message" id="phoneSuccess"></div>
             </div>
-
-            <button type="submit" class="submit-btn" id="submitBtn">
-                🚀 Авторизоваться
-            </button>
         </form>
 
         <div class="loading" id="loading"></div>
@@ -251,7 +224,6 @@
         const form = document.getElementById('authForm');
         const employeeCodeInput = document.getElementById('employeeCode');
         const phoneNumberInput = document.getElementById('phoneNumber');
-        const submitBtn = document.getElementById('submitBtn');
         const loading = document.getElementById('loading');
         const userInfo = document.getElementById('userInfo');
         const userName = document.getElementById('userName');
@@ -424,10 +396,8 @@
             }
         });
 
-        // Обработка отправки формы
-        form.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
+        // Обработка отправки формы (только через MainButton)
+        function submitForm() {
             const employeeCode = employeeCodeInput.value.trim();
             // Получаем чистый номер (только цифры) для валидации
             const phoneNumber = phoneNumberInput.value.replace(/\D/g, '');
@@ -476,10 +446,10 @@
                 timestamp: Date.now()
             };
             
-            // Показать загрузку
+            // Показать загрузку и изменить MainButton
             loading.style.display = 'block';
-            submitBtn.disabled = true;
-            submitBtn.textContent = 'Проверяем...';
+            tg.MainButton.setText('Проверяем...');
+            tg.MainButton.showProgress();
             
             // Отправка данных через Telegram
             try {
@@ -489,8 +459,9 @@
                 // Показать успех
                 setTimeout(() => {
                     loading.style.display = 'none';
-                    submitBtn.textContent = '✅ Данные отправлены';
-                    submitBtn.style.background = '#27ae60';
+                    tg.MainButton.hideProgress();
+                    tg.MainButton.setText('✅ Данные отправлены');
+                    tg.MainButton.color = '#27ae60';
                     
                     // Показать уведомление
                     tg.showAlert('Данные для авторизации отправлены боту. Ожидайте подтверждения.', () => {
@@ -504,26 +475,25 @@
                 // Fallback для тестирования вне Telegram
                 setTimeout(() => {
                     loading.style.display = 'none';
-                    submitBtn.disabled = false;
-                    submitBtn.textContent = '🚀 Авторизоваться';
+                    tg.MainButton.hideProgress();
+                    tg.MainButton.setText('🚀 Авторизоваться');
                     
                     tg.showAlert(`Тестовый режим:\nКод: ${employeeCode}\nТелефон: ${correctedPhone}\n\nВ реальном приложении данные были бы отправлены боту.`);
                 }, 1500);
             }
-        });
+        }
 
-        // Обработка событий кнопок Telegram
-        tg.onEvent('mainButtonClicked', function() {
-            form.dispatchEvent(new Event('submit'));
-        });
-
-        // Настройка главной кнопки (опционально)
-        tg.MainButton.setText('АВТОРИЗОВАТЬСЯ');
-        tg.MainButton.show();
+        // Обработка событий MainButton
+        tg.MainButton.onClick(submitForm);
         
-        tg.MainButton.onClick(function() {
-            form.dispatchEvent(new Event('submit'));
+        // Отключаем стандартную отправку формы (используем только MainButton)
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
         });
+
+        // Настройка MainButton
+        tg.MainButton.setText('🚀 Авторизоваться');
+        tg.MainButton.show();
 
         // Логирование для отладки
         console.log('Telegram Web App initialized');

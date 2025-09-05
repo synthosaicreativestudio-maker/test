@@ -3,18 +3,23 @@
 """
 Telegram Bot для авторизации сотрудников
 Использует aiogram v3 и Telegram Mini App
+Интеграция с Google Sheets для проверки сотрудников
 """
 
 import asyncio
+import json
 import logging
 import os
 import sys
+from datetime import datetime
 from typing import Any, Dict
 
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters.command import Command
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, WebAppInfo
 from aiogram import F
+import gspread
+from google.oauth2.service_account import Credentials
 
 # Настройка логирования
 logging.basicConfig(
@@ -26,6 +31,100 @@ logging.basicConfig(
     ]
 )
 logger = logging.getLogger(__name__)
+
+# Google Sheets конфигурация
+SHEET_ID = '1_SB04LMuGB7ba3aog2xxN6N3g99ZfOboT-vdWXxrh_8'
+WORKSHEET_NAME = 'список сотрудников для авторизации'
+CREDENTIALS_FILE = 'credentials.json'
+
+# Инициализация Google Sheets клиента
+gc = None
+worksheet = None
+
+async def init_google_sheets():
+    """Инициализация подключения к Google Sheets"""
+    global gc, worksheet
+    try:
+        # Области доступа для Google Sheets API
+        scopes = [
+            'https://www.googleapis.com/auth/spreadsheets',
+            'https://www.googleapis.com/auth/drive'
+        ]
+        
+        # Загрузка учетных данных
+        credentials = Credentials.from_service_account_file(
+            CREDENTIALS_FILE, 
+            scopes=scopes
+        )
+        
+        # Авторизация клиента
+        gc = gspread.authorize(credentials)
+        
+        # Открытие таблицы
+        sheet = gc.open_by_key(SHEET_ID)
+        worksheet = sheet.worksheet(WORKSHEET_NAME)
+        
+        logger.info(f"✅ Google Sheets подключен: {sheet.title}")
+        logger.info(f"📋 Рабочий лист: {WORKSHEET_NAME}")
+        
+        return True
+        
+    except Exception as e:
+        logger.error(f"❌ Ошибка подключения к Google Sheets: {e}")
+        return False
+
+async def find_employee(employee_code: str, phone: str) -> Dict[str, Any]:
+    """Поиск сотрудника в Google Sheets по коду и телефону"""
+    try:
+        if not worksheet:
+            return {
+                'success': False,
+                'message': 'Ошибка подключения к базе данных сотрудников'
+            }
+        
+        # Получаем все записи
+        records = worksheet.get_all_records()
+        logger.info(f"📊 Найдено записей в таблице: {len(records)}")
+        
+        # Поиск сотрудника
+        for i, record in enumerate(records, start=2):  # start=2 т.к. первая строка - заголовки
+            # Проверяем код и телефон (приводим к строкам для сравнения)
+            record_code = str(record.get('Код сотрудника', '')).strip()
+            record_phone = str(record.get('Телефон', '')).strip()
+            record_name = str(record.get('Имя', '')).strip()
+            record_status = str(record.get('Статус', '')).strip()
+            
+            logger.info(f"🔍 Проверка записи {i}: код={record_code}, телефон={record_phone}")
+            
+            if record_code == employee_code and record_phone == phone:
+                logger.info(f"✅ Найден сотрудник: {record_name}")
+                
+                # Обновляем статус авторизации
+                try:
+                    worksheet.update_cell(i, 4, 'авторизован')  # Колонка D - Статус
+                    worksheet.update_cell(i, 5, datetime.now().strftime('%d.%m.%Y %H:%M'))  # Колонка E - Дата авторизации
+                    logger.info(f"📝 Обновлен статус для {record_name}")
+                except Exception as update_error:
+                    logger.error(f"⚠️ Ошибка обновления статуса: {update_error}")
+                
+                return {
+                    'success': True,
+                    'employee_name': record_name,
+                    'message': f'Авторизация успешна!\n👤 Сотрудник: {record_name}\n📱 Телефон: {phone}\n🆔 Код: {employee_code}'
+                }
+        
+        logger.warning(f"❌ Сотрудник не найден: код={employee_code}, телефон={phone}")
+        return {
+            'success': False,
+            'message': f'Сотрудник с кодом {employee_code} и телефоном {phone} не найден в базе данных.\n\nОбратитесь к администратору для добавления в систему.'
+        }
+        
+    except Exception as e:
+        logger.error(f"💥 Ошибка поиска сотрудника: {e}")
+        return {
+            'success': False,
+            'message': f'Ошибка при проверке данных: {str(e)}\n\nПопробуйте позже или обратитесь в поддержку.'
+        }
 
 # Получение конфигурации из переменных окружения
 def load_env_var(var_name: str, default_value: str = None) -> str:
@@ -154,26 +253,94 @@ async def handle_webapp_data(message: types.Message):
     try:
         # Получаем данные от Mini App
         webapp_data = message.web_app_data.data
-        logger.info(f"Получены данные от Mini App: {webapp_data}")
+        logger.info(f"📱 Получены данные от Mini App: {webapp_data}")
         
-        # Здесь будет обработка данных авторизации
-        # Пока что просто подтверждаем получение
-        await message.reply(
-            "✅ Данные получены!\n\n"
-            "🔄 Обработка авторизации...\n"
-            "📋 Проверка данных сотрудника в системе...",
+        # Парсим JSON данные
+        try:
+            auth_data = json.loads(webapp_data)
+        except json.JSONDecodeError as e:
+            logger.error(f"❌ Ошибка парсинга JSON: {e}")
+            await message.reply(
+                "❌ **Ошибка обработки данных**\n\n"
+                "Некорректный формат данных. Попробуйте еще раз.",
+                parse_mode="Markdown"
+            )
+            return
+        
+        # Извлекаем данные
+        employee_code = str(auth_data.get('employee_code', '')).strip()
+        phone = str(auth_data.get('phone', '')).strip()
+        user_id = auth_data.get('user_id')
+        username = auth_data.get('username', '')
+        first_name = auth_data.get('first_name', '')
+        last_name = auth_data.get('last_name', '')
+        
+        logger.info(f"👤 Данные авторизации: код={employee_code}, телефон={phone}, user_id={user_id}")
+        
+        # Валидация данных
+        if not employee_code or not phone:
+            await message.reply(
+                "❌ **Некорректные данные**\n\n"
+                "Убедитесь, что заполнены все поля:"
+                "\n• Код сотрудника"
+                "\n• Номер телефона",
+                parse_mode="Markdown"
+            )
+            return
+        
+        # Показываем процесс проверки
+        processing_msg = await message.reply(
+            "🔄 **Проверка данных...**\n\n"
+            f"👤 Код сотрудника: `{employee_code}`\n"
+            f"📱 Телефон: `{phone}`\n\n"
+            "⏳ Поиск в базе данных сотрудников...",
             parse_mode="Markdown"
         )
         
-        # TODO: Добавить интеграцию с Google Sheets
-        # TODO: Добавить валидацию данных
-        # TODO: Добавить обновление статуса авторизации
+        # Поиск сотрудника в Google Sheets
+        result = await find_employee(employee_code, phone)
+        
+        # Удаляем сообщение о процессе
+        await processing_msg.delete()
+        
+        if result['success']:
+            # Успешная авторизация
+            await message.reply(
+                f"✅ **{result['message']}**\n\n"
+                f"🎉 Добро пожаловать в систему!\n"
+                f"📅 Время авторизации: {datetime.now().strftime('%d.%m.%Y %H:%M')}\n\n"
+                f"ℹ️ Теперь вы можете пользоваться всеми функциями системы.",
+                parse_mode="Markdown"
+            )
+            
+            # Логируем успешную авторизацию
+            logger.info(
+                f"✅ Успешная авторизация: {result.get('employee_name', 'Unknown')} "
+                f"(user_id: {user_id}, код: {employee_code})"
+            )
+            
+        else:
+            # Ошибка авторизации
+            await message.reply(
+                f"❌ **Ошибка авторизации**\n\n"
+                f"{result['message']}\n\n"
+                f"📞 **Поддержка:** обратитесь к администратору",
+                parse_mode="Markdown"
+            )
+            
+            # Логируем неудачную попытку
+            logger.warning(
+                f"❌ Неудачная авторизация: код={employee_code}, телефон={phone}, "
+                f"user_id={user_id}, username={username}"
+            )
         
     except Exception as e:
-        logger.error(f"Ошибка обработки данных Mini App: {e}")
+        logger.error(f"💥 Критическая ошибка обработки данных Mini App: {e}")
         await message.reply(
-            "❌ **Ошибка обработки данных**\n\n"
-            "Попробуйте еще раз или обратитесь в поддержку.",
+            "💥 **Критическая ошибка**\n\n"
+            "Произошла неожиданная ошибка при обработке данных.\n"
+            "Попробуйте позже или обратитесь в техническую поддержку.\n\n"
+            f"🆔 ID ошибки: `{str(e)[:100]}`",
             parse_mode="Markdown"
         )
 
@@ -197,6 +364,11 @@ async def main():
     logger.info(f"🔗 Mini App URL: {WEB_APP_AUTH_URL}")
     
     try:
+        # Инициализация Google Sheets
+        sheets_connected = await init_google_sheets()
+        if not sheets_connected:
+            logger.error("⚠️ Бот запущен без подключения к Google Sheets")
+        
         # Получаем информацию о боте
         bot_info = await bot.get_me()
         logger.info(f"✅ Бот запущен: @{bot_info.username} ({bot_info.first_name})")

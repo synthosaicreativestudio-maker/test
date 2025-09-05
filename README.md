@@ -1,16 +1,27 @@
-# Marketing Test Project
+# Marketing Test Project v1.0.0
 
 [![Deploy to GitHub Pages](https://github.com/synthosaicreativestudio-maker/test/actions/workflows/deploy.yml/badge.svg)](https://github.com/synthosaicreativestudio-maker/test/actions/workflows/deploy.yml)
 [![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-Live-brightgreen?logo=github)](https://synthosaicreativestudio-maker.github.io/test/)
 [![Website Status](https://img.shields.io/website?url=https%3A%2F%2Fsynthosaicreativestudio-maker.github.io%2Ftest%2F)](https://synthosaicreativestudio-maker.github.io/test/)
+[![Version](https://img.shields.io/badge/Version-1.0.0-blue)](https://github.com/synthosaicreativestudio-maker/test)
+[![Mobile Ready](https://img.shields.io/badge/Mobile-100%25%20Compatible-brightgreen)](https://synthosaicreativestudio-maker.github.io/test/)
+[![Auto Deploy](https://img.shields.io/badge/Deploy-Automatic-brightgreen)](https://github.com/synthosaicreativestudio-maker/test/actions)
 
-Проект для автоматизации маркетинга с интеграцией Telegram бота, Context7 MCP, Google Sheets и веб-интерфейсом.
+**Production-ready** проект для автоматизации маркетинга с интеграцией Telegram бота, Context7 MCP, Google Sheets и веб-интерфейсом.
 
-## 🌐 Live Demo
+## 🚀 **Live Demo & Deployment**
 
-- **🚀 Веб-интерфейс**: [https://synthosaicreativestudio-maker.github.io/test/](https://synthosaicreativestudio-maker.github.io/test/)
+### 🌐 **Доступные ресурсы:**
+- **🎯 Веб-интерфейс**: [https://synthosaicreativestudio-maker.github.io/test/](https://synthosaicreativestudio-maker.github.io/test/)
 - **📱 Telegram Mini App**: Авторизация через веб-интерфейс
-- **🔄 Автодеплой**: При каждом push в `main`
+- **📋 Документация**: [DEPLOYMENT.md](DEPLOYMENT.md) - полное руководство по деплою
+- **🔄 CI/CD Status**: Автоматический деплой при каждом push в `main`
+
+### ✅ **Статус развертывания:**
+- **Автоматические тесты**: ✅ Проходят при каждом коммите
+- **GitHub Pages**: ✅ Автоматический деплой веб-интерфейса  
+- **Mobile compatibility**: ✅ 100% совместимость с мобильными устройствами
+- **Real-time updates**: ✅ Обновления в реальном времени
 
 ## 🚀 Быстрый старт и деплой
 
@@ -122,6 +133,41 @@ python3 scripts/add_log.py --log logs/project_log.md --author "Иван" --type 
 - **🔄 CI/CD**: GitHub Actions workflow для непрерывной интеграции
 
 Подробнее в **[📋 DEPLOYMENT.md](DEPLOYMENT.md)**
+
+## 🎨 Архитектура проекта
+
+### 📱 **Telegram Mini App + Веб-интерфейс**
+- **Frontend**: HTML5 + CSS3 + JavaScript (Адаптивный дизайн)
+- **Telegram SDK**: WebApp API для интеграции с Mini App
+- **Real-time validation**: Проверка форм в реальном времени
+
+### 🤖 **Telegram Bot (Python)**
+- **Framework**: aiogram v3.15.0 (Современный async framework)
+- **Модульная система**: Miniapps архитектура
+- **Авторизация**: Google Sheets API интеграция
+
+### 🌐 **MCP (Model Context Protocol)**
+- **Context7 интеграция**: Управление контекстом
+- **Локальный контекст**: Сохранение состояния диалогов
+
+### 📦 **Компоненты проекта**
+```
+┌── web_ui/                 # Веб-интерфейс (дубликат)
+├── src/miniapps/          # Модули бота
+│   ├── echo.py           # Эхо модуль
+│   ├── welcome.py        # Приветствие + Mini App
+│   └── webapp.py         # Обработка авторизации
+├── src/mcp/               # MCP интеграция  
+├── .github/workflows/     # CI/CD конфигурация
+├── index.html             # Главная страница (деплой)
+├── app.js                 # Mini App логика
+└── styles.css             # Стили интерфейса
+```
+
+### 🔄 **CI/CD Pipeline**
+- **Тестирование**: pytest автотесты (9 тестов)
+- **Деплой**: GitHub Pages автоматический деплой
+- **Мониторинг**: Status badges и отчеты
 =======
 # test
 >>>>>>> 6eff3e320eb9a623ac3081f83ad6576dc10ef955

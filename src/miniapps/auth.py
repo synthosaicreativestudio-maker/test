@@ -152,16 +152,10 @@ def setup(dp):
         waiting_code = State()
         waiting_phone = State()
 
-    async def start_auth_cb(callback: types.CallbackQuery):
+    async def start_auth_cb(callback: types.CallbackQuery, state: FSMContext):
         await callback.message.answer('Введите код сотрудника (только цифры):')
-        await AuthStates.waiting_code.set()
-
-    async def cmd_start(message: types.Message):
-        kb = types.InlineKeyboardMarkup()
-        kb.add(types.InlineKeyboardButton('Авторизоваться', callback_data='auth_start'))
-        u = message.from_user
-        name = (getattr(u, 'first_name', '') or getattr(u, 'username', '') or 'пользователь')
-        await message.reply(f'Уважаемый {name}, пройдите простую регистрацию', reply_markup=kb)
+        await state.set_state(AuthStates.waiting_code)
+        await callback.answer()
 
     async def handle_code(message: types.Message, state: FSMContext):
         code = message.text.strip()
@@ -170,7 +164,7 @@ def setup(dp):
             return
         await state.update_data(code=code)
         await message.reply("Введите номер телефона. Введите 10 цифр после первой '8' (например 89827701055):")
-        await AuthStates.waiting_phone.set()
+        await state.set_state(AuthStates.waiting_phone)
 
     async def handle_phone(message: types.Message, state: FSMContext):
         phone = message.text.strip()
@@ -188,7 +182,6 @@ def setup(dp):
         await message.reply(user_msg)
         await state.clear()
 
-    dp.message.register(cmd_start, Command(commands=['start']))
     dp.callback_query.register(start_auth_cb, lambda c: c.data == 'auth_start')
     dp.message.register(handle_code, StateFilter(AuthStates.waiting_code))
     dp.message.register(handle_phone, StateFilter(AuthStates.waiting_phone))
